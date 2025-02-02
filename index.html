@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="x-icon" href="./images/bike-yard-logo.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Bike Yard Shop</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Bottom Notification Styles */
+        .bottom-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translate(-50%, 50px);
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            max-width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .bottom-notification.show {
+            transform: translate(-50%, 0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .bottom-notification i {
+            font-size: 20px;
+        }
+
+        .bottom-notification.success {
+            background-color: #28a745;
+        }
+
+        .bottom-notification.error {
+            background-color: #dc3545;
+        }
+
+        .bottom-notification.info {
+            background-color: #17a2b8;
+        }
+
+        @media (max-width: 768px) {
+            .bottom-notification {
+                min-width: auto;
+                width: 90%;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .bottom-notification i {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <script src="./assets/js/jquery.min.js"></script>
+    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="./assets/js/script.js"></script>
+</head>
+<body>
+
+    <header>
+        <a href="./" class="logo">
+            <img src="./images/bike-yard-logo.png" alt="Bike Yard Logo">
+        </a>
+        <button class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="nav-menu">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="Menu.pdf">Cafe Menu</a><li>
+                    <a href="bikeyardcart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        Cart
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <img src="./images/bike-yard-m.jpg" alt="Bike Yard m">
+            <a href="products.html" class="btn-primary">Shop Now</a>
+            <a href="Menu.pdf" class="btn-primary">Cafe Menu</a>
+        </div>
+    </section>
+    
+
+    <!-- About Us -->
+    <section class="about-us">
+        <div class="container">
+            <h2>About Us</h2>
+            <p>At Bike Yard Shop, we are passionate about cycling. Our mission is to provide top-quality bikes, gear, and accessories to cyclists of all levels. Whether you're hitting the trails or commuting to work, we've got you covered!</p>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="featured-products">
+        <h2>Featured Products</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="./images/mountain-bike.png" alt="Mountain Bike" style="max-width: 500px;">
+                <h3>Mountain Bike</h3>
+                <a href="products.html" class="product-btn">View Details</a>
+            </div>
+            <div class="product-card">
+                <img src="./images/road-bike.png" alt="Road Bike" style="max-width: 500px;">
+                <h3>Road Bike</h3>
+                <a href="products.html" class="product-btn">View Details</a>
+            </div>
+            <div class="product-card">
+                <img src="./images/accessories.png" alt="Accessories" style="max-width: 500px;">
+                <h3>Accessories</h3>
+                <a href="products.html" class="product-btn">View Details</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <div class="container">
+            <h2>Our Services</h2>
+            <div class="services-grid">
+                <div class="service">
+                    <i class="fas fa-wrench service-icon"></i>
+                    <h3>Bike Repairs</h3>
+                    <p>Professional bike repair and maintenance services to keep your bike in top condition.</p>
+                    <a href="services.html#repairs" class="service-link">Learn More</a>
+                </div>
+                <div class="service">
+                    <i class="fas fa-paint-brush service-icon"></i>
+                    <h3>Customization</h3>
+                    <p>Personalize your bike with our customization options for a truly unique ride.</p>
+                    <a href="services.html#customization" class="service-link">Learn More</a>
+                </div>
+                <div class="service">
+                    <i class="fas fa-bicycle service-icon"></i>
+                    <h3>Bike Rentals</h3>
+                    <p>Explore the outdoors with our range of rental bikes for any adventure.</p>
+                    <a href="services.html#rentals" class="service-link">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <h2>What Our Customers Say</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial">
+                <p>"Bike Yard Shop has the best collection of bikes and accessories. Excellent service and great prices!"</p>
+                <span>- Alex J.</span>
+            </div>
+            <div class="testimonial">
+                <p>"I love my new mountain bike from Bike Yard Shop. The quality and customer service are top-notch!"</p>
+                <span>- Maria S.</span>
+            </div>
+            <div class="testimonial">
+                <p>"Their bike repair service is fast and reliable. Highly recommend!"</p>
+                <span>- James T.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact CTA -->
+    <section class="contact-cta">
+        <h2>Have Questions?</h2>
+        <p>Contact our team for assistance with your bike, gear, or order.</p>
+        <a href="contact.html" class="btn-primary">Contact Us</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Bike Yard Shop. All Rights Reserved.</p>
+    </footer>
+
+    <script src="./js/scripts.js"></script>
+</body>
+</html>
