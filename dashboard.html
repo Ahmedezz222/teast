@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bike Yard - Admin Dashboard</title>
-    <link rel="shortcut icon" href="./assets/images/bike yard logo.png">
-    <link rel="stylesheet" href="./assets/css/styles.css">
-    <link rel="stylesheet" href="./assets/css/dashboard.css">
+    <link rel="shortcut icon" href="bike yard logo.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -15,7 +15,7 @@
     <header>
         <nav class="admin-nav">
             <div class="logo">
-                <a href="./"><img src="./assets/images/bike yard logo.png" alt="Bike Yard"></a>
+                <a href="./"><img src="bike yard logo.png" alt="Bike Yard"></a>
             </div>
             <div class="nav-controls">
                 <div class="datetime">
@@ -140,7 +140,9 @@
                             <input type="text" id="product-search" placeholder="Search products...">
                             <select id="category-filter">
                                 <option value="">All Categories</option>
-                                <!-- Categories will be populated dynamically -->
+                            
+                                
+
                             </select>
                         </div>
                     </div>
@@ -159,6 +161,7 @@
                             <tbody></tbody>
                         </table>
                     </div>
+                    <div class="products-grid"></div>
                 </div>
 
                 <!-- Categories Tab -->
@@ -172,6 +175,7 @@
                     <div class="categories-grid" id="categories-grid">
                         <!-- Categories will be populated dynamically -->
                     </div>
+                    <div id="category-list-container"></div>
                 </div>
 
                 <!-- Customers Tab -->
@@ -221,11 +225,15 @@
                 </div>
                 <div class="form-group">
                     <label for="productCategory">Category*</label>
-                    <select id="productCategory" name="productCategory" required>
-                        <option value="">Select Category</option>
-                        <!-- Categories will be populated dynamically -->
-                    </select>
-                    <div class="helper-text">Select the most appropriate category for your product</div>
+                    <div class="category-select-wrapper">
+                        <div class="category-icon-preview"></div>
+                        <select id="productCategory" name="productCategory" required>
+                            <option value="" disabled selected>Select Category</option>
+                            <!-- Categories will be populated dynamically -->
+                        </select>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                    <div class="helper-text">Select a category for your product</div>
                 </div>
                 <div class="form-group">
                     <label for="productDescription">Description*</label>
@@ -265,35 +273,63 @@
     <div id="category-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add Category</h3>
-                <button class="close-btn">&times;</button>
+                <h3 id="category-modal-title">Add Category</h3>
+                <button type="button" class="close-btn" aria-label="Close modal">&times;</button>
             </div>
-            <form id="category-form">
+            <form id="category-form" novalidate>
                 <div class="form-group">
                     <label for="categoryName">Category Name*</label>
-                    <input type="text" id="categoryName" name="categoryName" required minlength="3">
-                    <div class="helper-text">Minimum 3 characters</div>
+                    <input type="text" 
+                           id="categoryName" 
+                           name="categoryName" 
+                           required 
+                           minlength="3"
+                           pattern="[A-Za-z0-9\s]+"
+                           aria-describedby="categoryNameHelp">
+                    <div id="categoryNameHelp" class="helper-text">
+                        Minimum 3 characters, alphanumeric only
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="categoryIcon">Icon Class</label>
-                    <input type="text" id="categoryIcon" name="categoryIcon" placeholder="fas fa-bicycle">
-                    <div class="icon-preview"></div>
-                    <div class="helper-text">Use Font Awesome icon classes</div>
+                    <div class="icon-input-wrapper">
+                        <input type="text" 
+                               id="categoryIcon" 
+                               name="categoryIcon" 
+                               placeholder="fas fa-bicycle"
+                               aria-describedby="categoryIconHelp">
+                        <div class="icon-preview"></div>
+                    </div>
+                    <div id="categoryIconHelp" class="helper-text">
+                        Use Font Awesome 6 icon classes (e.g., fas fa-bicycle)
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="categoryDescription">Description*</label>
-                    <textarea id="categoryDescription" name="categoryDescription" rows="3" required></textarea>
-                    <div class="helper-text">Brief description of the category</div>
+                    <textarea id="categoryDescription" 
+                              name="categoryDescription" 
+                              rows="3" 
+                              required
+                              maxlength="200"
+                              aria-describedby="categoryDescHelp"></textarea>
+                    <div id="categoryDescHelp" class="helper-text">
+                        Brief description of the category (max 200 characters)
+                    </div>
                 </div>
-                <button type="submit" class="primary-btn">
-                    <i class="fas fa-save"></i> Save Category
-                </button>
+                <div class="form-actions">
+                    <button type="button" class="secondary-btn" data-action="cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="primary-btn" id="saveCategoryBtn">
+                        <i class="fas fa-save"></i> <span>Save Category</span>
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="./assets/js/dashboard.js"></script>
+    <script src="dashboard.js"></script>
     
 </body>
 </html>

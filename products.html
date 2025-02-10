@@ -50,8 +50,9 @@
         <div class="filters">
             <select id="category-filter" onchange="filterProducts()">
                 <option value="all">All Categories</option>
+                <!-- Categories will be populated dynamically -->
             </select>
-            <select id="price-sort" onchange="sortProducts()">
+            <select id="price-sort" onchange="filterProducts()">
                 <option value="default">Sort by Price</option>
                 <option value="low-to-high">Low to High</option>
                 <option value="high-to-low">High to Low</option>
