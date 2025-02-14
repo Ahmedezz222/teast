@@ -86,8 +86,6 @@ function createProductCard(product) {
         </div>
         <div class="product-info">
             <h3>${product.name}</h3>
-            <p class="product-category">${product.category}</p>
-            <p class="product-description">${product.description}</p>
             <p class="product-price">${formatCurrency(product.price)}</p>
             <div class="product-actions">
                 <button onclick="showProductDetails('${product.id}')" class="view-details-btn">
@@ -107,6 +105,7 @@ function createProductCard(product) {
     `;
     return card;
 }
+
 
 function showProductDetails(productId) {
     const product = products.find(p => p.id === productId);

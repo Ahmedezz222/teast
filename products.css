@@ -1270,7 +1270,7 @@ select#productCategory option:checked {
 
 .product-card {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 9px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden;
@@ -1641,8 +1641,8 @@ select#productCategory option:checked {
 /* ...existing code... */
 
 .product-actions {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid #eee;
+    padding: 0rem 0.1rem;
+    border-top: -11px solid #eee;
     display: flex;
     gap: 1rem;
 }
@@ -1854,11 +1854,11 @@ select#productCategory option:checked {
 }
 
 .product-info {
-    padding: 2rem;
+    padding: 0rem;
     display: flex;
     flex-direction: column;
-    gap: .5rem;
-    max-height: 600px;
+    gap: 0.5rem;
+    max-height: 540px;
     overflow-y: auto;
 }
 
@@ -1890,6 +1890,7 @@ select#productCategory option:checked {
     background: #28a745;
     color: white;
     transition: all 0.2s ease;
+    margin-right: 275px;
 }
 
 .modal-actions .add-to-cart-btn:hover {
