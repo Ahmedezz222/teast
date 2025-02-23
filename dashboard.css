@@ -464,8 +464,7 @@ select {
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    position: relative;
-    transition: transform 0.2s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .category-card:hover {
@@ -1445,6 +1444,86 @@ select#productCategory option:hover {
 
 /* ...existing code... */
 
+/* Category Modal Specific Styles */
+#category-modal .modal-content {
+    max-width: 500px;
+}
+
+#category-modal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#category-modal .icon-preview {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-left: 1rem;
+}
+
+#category-modal .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+#category-modal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+#category-modal .helper-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+#category-modal .form-group.error input,
+#category-modal .form-group.error textarea {
+    border-color: #dc3545;
+}
+
+#category-modal .form-group.error .helper-text {
+    color: #dc3545;
+}
+
+/* Loading state for submit button */
+#saveCategoryBtn.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+#saveCategoryBtn.loading span {
+    visibility: hidden;
+}
+
+#saveCategoryBtn.loading::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
 .category-select-wrapper {
     position: relative;
     width: 100%;
@@ -1527,6 +1606,409 @@ select#productCategory option:hover {
     margin-top: 0.25rem;
     font-size: 0.875rem;
     color: #6c757d;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.category-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0;
+}
+
+.category-cell i {
+    color: #007bff;
+    font-size: 1rem;
+    width: 1.5rem;
+    text-align: center;
+    background: rgba(0, 123, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.category-cell span {
+    color: #495057;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Enhanced category select styles */
+.category-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.category-select-wrapper select {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 2.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    appearance: none;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-select-wrapper select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.category-icon-preview {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+.category-select-wrapper.focused .select-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.category-select-wrapper.has-value select {
+    border-color: #28a745;
+}
+
+.category-select-wrapper.has-value .category-icon-preview {
+    color: #007bff;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.category-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.category-header i {
+    font-size: 1.5rem;
+    color: #007bff;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 8px;
+}
+
+.category-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #212529;
+}
+
+.category-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    min-height: 40px;
+}
+
+.category-stats {
+    margin: 1rem 0;
+}
+
+.product-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: #e9ecef;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: #495057;
+}
+
+.category-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.category-actions button {
+    flex: 1;
+    padding: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+/* Update the Add Category button styles */
+#add-category-btn {
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+#add-category-btn:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+
+#add-category-btn:active {
+    transform: translateY(0);
+}
+
+#add-category-btn i {
+    font-size: 1.1em;
+}
+
+/* ...existing code... */
+
+/* Enhanced Category Grid Layout */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.category-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.category-header i {
+    font-size: 1.5rem;
+    color: #007bff;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 12px;
+}
+
+.category-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.category-description {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin: 0.75rem 0;
+    min-height: 40px;
+    line-height: 1.5;
+}
+
+.category-stats {
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.product-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    background: #e9ecef;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.product-count i {
+    color: #007bff;
+    font-size: 0.9rem;
+}
+
+.category-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.category-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.category-actions .edit {
+    background: #007bff;
+    color: white;
+}
+
+.category-actions .delete {
+    background: #dc3545;
+    color: white;
+}
+
+.category-actions button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.1);
+}
+
+/* Category Modal Styles */
+#category-modal .modal-content {
+    max-width: 500px;
+}
+
+#category-modal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+#category-modal .icon-preview {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-left: 1rem;
+}
+
+/* ...existing code... */
+
+/* ...existing code... */
+
+.category-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.category-select-wrapper select {
+    width: 100%;
+    padding: 0.75rem 2.5rem 0.75rem 2.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    appearance: none;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.category-select-wrapper select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+.category-icon-preview {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.select-arrow {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+.category-select-wrapper.focused .select-arrow {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.category-select-wrapper.has-value select {
+    border-color: #28a745;
+}
+
+.category-select-wrapper.has-value .category-icon-preview {
+    color: #007bff;
 }
 
 /* ...existing code... */

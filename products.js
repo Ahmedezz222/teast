@@ -8,42 +8,45 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
 });
 
+// Add storage event listener
+window.addEventListener('storage', (e) => {
+    if (e.key === 'products') {
+        products = JSON.parse(e.newValue || '[]');
+        renderProducts();
+    } else if (e.key === 'categories') {
+        categories = JSON.parse(e.newValue || '[]');
+        populateCategoryFilter();
+    }
+});
+
+// Modify initializeProducts to include immediate render
 function initializeProducts() {
     try {
-        // Load products from localStorage
         products = JSON.parse(localStorage.getItem('products') || '[]');
         renderProducts();
+        
+        // Listen for updates from dashboard
+        window.addEventListener('productsUpdated', (e) => {
+            products = e.detail.products;
+            renderProducts();
+        });
     } catch (error) {
         console.error('Error loading products:', error);
         showNotification('Error loading products', 'error');
     }
 }
 
+// Update loadCategories to handle updates
 function loadCategories() {
     try {
-        // Load categories from localStorage
-        let categories = JSON.parse(localStorage.getItem('categories') || '[]');
+        categories = JSON.parse(localStorage.getItem('categories') || '[]');
         
-        // Initialize with default categories if none exist
-        if (categories.length === 0) {
-            categories = [
-                { id: 'cat_1', name: 'Mountain Bikes', value: 'mountain-bikes', icon: 'fas fa-mountain', productCount: 0 },
-                { id: 'cat_2', name: 'Road Bikes', value: 'road-bikes', icon: 'fas fa-road', productCount: 0 },
-                { id: 'cat_3', name: 'BMX Bikes', value: 'bmx-bikes', icon: 'fas fa-bicycle', productCount: 0 },
-                { id: 'cat_4', name: 'Electric Bikes', value: 'electric-bikes', icon: 'fas fa-bolt', productCount: 0 },
-                { id: 'cat_5', name: 'Kids Bikes', value: 'kids-bikes', icon: 'fas fa-child', productCount: 0 },
-                { id: 'cat_6', name: 'Accessories', value: 'accessories', icon: 'fas fa-cog', productCount: 0 }
-            ];
-            localStorage.setItem('categories', JSON.stringify(categories));
-        }
+        // Listen for updates from dashboard
+        window.addEventListener('categoriesUpdated', (e) => {
+            categories = e.detail.categories;
+            populateCategoryFilter();
+        });
 
-        // Update category product counts
-        categories = categories.map(category => ({
-            ...category,
-            productCount: products.filter(p => p.categoryId === category.id).length
-        }));
-
-        localStorage.setItem('categories', JSON.stringify(categories));
         populateCategoryFilter();
     } catch (error) {
         console.error('Error loading categories:', error);
@@ -158,10 +161,10 @@ function filterProducts() {
     // Apply price sort
     switch (priceSort) {
         case 'low-to-high':
-            filteredProducts.sort((a, b) => a.price - b.price);
+        filteredProducts.sort((a, b) => a.price - b.price);
             break;
         case 'high-to-low':
-            filteredProducts.sort((a, b) => b.price - a.price);
+        filteredProducts.sort((a, b) => b.price - a.price);
             break;
     }
     
@@ -170,7 +173,7 @@ function filterProducts() {
 
 function populateCategoryFilter() {
     const select = document.getElementById('category-filter');
-    
+
     // Clear existing options except "All Categories"
     while (select.options.length > 1) {
         select.remove(1);
@@ -253,3 +256,106 @@ function updateCartCount() {
 
 // Initialize cart count on page load
 updateCartCount();
+// Category initialization
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Load categories from localStorage
+        const categories = JSON.parse(localStorage.getItem('categories')) || [];
+        const categorySelect = document.getElementById('categorySelect');
+        
+        // Clear existing options except "All Categories"
+        while (categorySelect.options.length > 1) {
+            categorySelect.remove(1);
+        }
+        
+        // Populate category select with icons
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            option.dataset.icon = category.icon;
+            categorySelect.appendChild(option);
+        });
+
+        // Enhanced change event listener
+        categorySelect.addEventListener('change', (e) => {
+            filterProducts();
+            updateSelectIcon(e.target);
+        });
+        
+        // Initial icon update
+        updateSelectIcon(categorySelect);
+        
+    } catch (error) {
+        console.error('Error loading categories:', error);
+    }
+});
+
+function updateSelectIcon(select) {
+    const selectedOption = select.options[select.selectedIndex];
+    const iconElement = select.parentElement.querySelector('.select-icon');
+    
+    if (iconElement && selectedOption.dataset.icon) {
+        iconElement.className = selectedOption.dataset.icon + ' select-icon';
+    }
+}
+
+function filterProducts() {
+    const selectedCategory = document.getElementById('categorySelect').value;
+    const products = JSON.parse(localStorage.getItem('products')) || [];
+    const container = document.getElementById('productsContainer');
+    
+    const filteredProducts = selectedCategory ? 
+        products.filter(product => product.categoryId === selectedCategory) :
+        products;
+        
+    // Clear container
+    container.innerHTML = '';
+    
+    // Render filtered products
+    filteredProducts.forEach(product => {
+        const productCard = createProductCard(product);
+        container.appendChild(productCard);
+    });
+}
+
+function createProductCard(product) {
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    
+    // Get category details
+    const categories = JSON.parse(localStorage.getItem('categories')) || [];
+    const category = categories.find(c => c.id === product.categoryId);
+    
+    card.innerHTML = `
+        <div class="product-image">
+            <img src="${product.image}" alt="${product.name}" loading="lazy">
+            ${product.stock <= 0 ? '<span class="out-of-stock">Out of Stock</span>' : ''}
+        </div>
+        <div class="product-info">
+            ${category ? `
+                <div class="category-badge" title="${category.description || ''}">
+                    <i class="${category.icon}"></i>
+                    <span>${category.name}</span>
+                </div>
+            ` : ''}
+            <h3>${product.name}</h3>
+            <p class="price">${formatCurrency(product.price)}</p>
+            <div class="product-actions">
+                <button class="add-to-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>
+                    <i class="fas fa-shopping-cart"></i>
+                    ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-EG', {
+        style: 'currency',
+        currency: 'EGP'
+    }).format(amount);
+}

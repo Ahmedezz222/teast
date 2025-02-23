@@ -28,9 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCategoryEventListeners();
     setupTabEventListeners();
     setupImagePreview();
-    CategoryManager.init();
-    CategoryManager.initializePublicView('category-list-container');
-    populateCategorySelect();
     setupCategoryModal();
 });
 
@@ -104,21 +101,6 @@ function setupEventListeners() {
     document.getElementById('clear-products-btn')?.addEventListener('click', () => {
         if (confirm('Are you sure you want to clear all products? This action cannot be undone!')) {
             clearAllProducts();
-        }
-    });
-
-    // Initialize button manager
-    ButtonManager.setupButtons();
-
-    // Enhanced form submission handling
-    document.querySelectorAll('form').forEach(form => {
-        const submitBtn = form.querySelector('button[type="submit"]');
-        if (submitBtn) {
-            submitBtn.addEventListener('click', (e) => {
-                if (!form.checkValidity()) {
-                    form.classList.add('was-validated');
-                }
-            });
         }
     });
 }
@@ -379,29 +361,36 @@ function refreshProducts() {
 
 function refreshCategories() {
     const grid = document.getElementById('categories-grid');
-    grid.innerHTML = '';
+    if (!grid) return;
 
+    grid.innerHTML = '';
+    
     dashboardState.categories.forEach(category => {
         const card = document.createElement('div');
         card.className = 'category-card';
         card.innerHTML = `
-            <h3><i class="${category.icon}"></i> ${category.name}</h3>
-            <p>${category.description || ''}</p>
-            <p><strong>${category.productCount}</strong> products</p>
+            <div class="category-header">
+                <i class="${category.icon || 'fas fa-folder'}"></i>
+                <h3>${category.name}</h3>
+            </div>
+            <p class="category-description">${category.description || 'No description available.'}</p>
+            <div class="category-stats">
+                <span class="product-count">
+                    <i class="fas fa-box"></i>
+                    ${category.productCount || 0} products
+                </span>
+            </div>
             <div class="category-actions">
-                <button onclick="editCategory('${category.id}')" class="action-btn edit">
+                <button onclick="editCategory('${category.id}')" class="edit">
                     <i class="fas fa-edit"></i> Edit
                 </button>
-                <button onclick="deleteCategory('${category.id}')" class="action-btn delete">
+                <button onclick="deleteCategory('${category.id}')" class="delete">
                     <i class="fas fa-trash"></i> Delete
                 </button>
             </div>
         `;
         grid.appendChild(card);
     });
-
-    // Update category filters
-    populateCategoryFilters();
 }
 
 function refreshCustomers() {
@@ -441,11 +430,11 @@ function filterOrders(event) {
 
 function filterProducts(event) {
     const searchTerm = document.getElementById('product-search').value.toLowerCase();
-    const categoryFilter = document.getElementById('category-filter').value;
+    const categoryFilter = document.getElementById('category-filter').value.toLowerCase();
     
     const filteredProducts = dashboardState.products.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-        const matchesCategory = !categoryFilter || product.category.value === categoryFilter;
+        const matchesCategory = !categoryFilter || product.category.toLowerCase() === categoryFilter;
         return matchesSearch && matchesCategory;
     });
 
@@ -468,9 +457,9 @@ function showModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
 
-    // If it's the product modal, ensure categories are set up
+    // If it's the product modal, ensure categories are populated
     if (modalId === 'product-modal') {
-        setupProductCategorySelect();
+        populateCategoryFilters();
     }
 
     modal.style.display = 'block';
@@ -533,7 +522,63 @@ function renderFilteredProducts(products) {
 }
 
 function populateCategoryFilters() {
-    CategoryManager.populateCategorySelects();
+    const categorySelect = document.getElementById('category-filter');
+    const productCategorySelect = document.getElementById('productCategory');
+    
+    if (!categorySelect || !productCategorySelect) return;
+
+    // Get categories from state
+    const categories = dashboardState.categories;
+    
+    // Clear existing options except the first one
+    while (categorySelect.options.length > 1) categorySelect.remove(1);
+    while (productCategorySelect.options.length > 1) productCategorySelect.remove(1);
+    
+    // Add categories to both selects
+    categories.forEach(category => {
+        // Add to filter dropdown
+        const filterOption = new Option(category.name, category.id);
+        categorySelect.add(filterOption);
+        
+        // Add to product form dropdown
+        const productOption = new Option(category.name, category.id);
+        productOption.dataset.icon = category.icon;
+        productCategorySelect.add(productOption);
+    });
+
+    // Set up category change handler
+    setupCategorySelectHandlers();
+}
+
+function setupCategorySelectHandlers() {
+    const productCategory = document.getElementById('productCategory');
+    const iconPreview = document.querySelector('.category-icon-preview');
+    
+    if (!productCategory || !iconPreview) return;
+
+    productCategory.addEventListener('change', (e) => {
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const wrapper = e.target.closest('.category-select-wrapper');
+        
+        if (e.target.value) {
+            wrapper.classList.add('has-value');
+            const category = dashboardState.categories.find(c => c.id === e.target.value);
+            if (category) {
+                iconPreview.className = category.icon + ' category-icon-preview';
+            }
+        } else {
+            wrapper.classList.remove('has-value');
+            iconPreview.className = 'fas fa-folder category-icon-preview';
+        }
+    });
+
+    productCategory.addEventListener('focus', (e) => {
+        e.target.closest('.category-select-wrapper').classList.add('focused');
+    });
+
+    productCategory.addEventListener('blur', (e) => {
+        e.target.closest('.category-select-wrapper').classList.remove('focused');
+    });
 }
 
 // Modal Handlers
@@ -738,6 +783,7 @@ async function viewProduct(productId) {
     // Populate form
     form.productName.value = product.name;
     form.productCategory.value = product.category;
+    form.productCategory.dispatchEvent(new Event('change'));
     form.productPrice.value = product.price;
     form.productStock.value = product.stock;
     
@@ -757,6 +803,7 @@ async function editProduct(productId) {
     // Populate form
     form.productName.value = product.name;
     form.productCategory.value = product.category;
+    form.productCategory.dispatchEvent(new Event('change'));
     form.productPrice.value = product.price;
     form.productStock.value = product.stock;
     
@@ -831,14 +878,14 @@ document.getElementById('product-form').addEventListener('submit', async functio
 // Add these category management functions
 function initializeCategories() {
     const defaultCategories = [
-        { id: 'cat_1', name: 'Mountain Bikes', value: 'mountain-bikes', icon: 'fas fa-mountain', productCount: 0, description: 'Off-road bikes for rough terrain' },
-        { id: 'cat_2', name: 'Road Bikes', value: 'road-bikes', icon: 'fas fa-road', productCount: 0, description: 'Lightweight bikes for paved surfaces' },
-        { id: 'cat_3', name: 'BMX Bikes', value: 'bmx-bikes', icon: 'fas fa-bicycle', productCount: 0, description: 'Bikes for tricks and racing' },
-        { id: 'cat_4', name: 'Electric Bikes', value: 'electric-bikes', icon: 'fas fa-bolt', productCount: 0, description: 'Power-assisted bicycles' },
-        { id: 'cat_5', name: 'Hybrid Bikes', value: 'hybrid-bikes', icon: 'fas fa-sync', productCount: 0, description: 'Multi-purpose bikes' },
-        { id: 'cat_6', name: 'Kids Bikes', value: 'kids-bikes', icon: 'fas fa-child', productCount: 0, description: 'Bikes for children' },
-        { id: 'cat_7', name: 'Racing Bikes', value: 'racing-bikes', icon: 'fas fa-flag-checkered', productCount: 0, description: 'Competition racing bicycles' },
-        { id: 'cat_8', name: 'Accessories', value: 'accessories', icon: 'fas fa-cog', productCount: 0, description: 'Bike accessories and gear' }
+        { id: 'cat_1', name: 'Mountain Bikes', icon: 'fas fa-mountain', productCount: 0, description: 'Off-road bikes for rough terrain' },
+        { id: 'cat_2', name: 'Road Bikes', icon: 'fas fa-road', productCount: 0, description: 'Lightweight bikes for paved surfaces' },
+        { id: 'cat_3', name: 'BMX Bikes', icon: 'fas fa-bicycle', productCount: 0, description: 'Bikes for tricks and racing' },
+        { id: 'cat_4', name: 'Electric Bikes', icon: 'fas fa-bolt', productCount: 0, description: 'Power-assisted bicycles' },
+        { id: 'cat_5', name: 'Hybrid Bikes', icon: 'fas fa-sync', productCount: 0, description: 'Multi-purpose bikes' },
+        { id: 'cat_6', name: 'Kids Bikes', icon: 'fas fa-child', productCount: 0, description: 'Bikes for children' },
+        { id: 'cat_7', name: 'Racing Bikes', icon: 'fas fa-flag-checkered', productCount: 0, description: 'Competition racing bicycles' },
+        { id: 'cat_8', name: 'Accessories', icon: 'fas fa-cog', productCount: 0, description: 'Bike accessories and gear' }
     ];
 
     // Initialize categories in state and localStorage if not exists
@@ -1489,11 +1536,7 @@ async function handleProductSubmit(e) {
             rating: 0,
             reviews: [],
             featured: false,
-            dateAdded: new Date().toISOString(),
-            specifications: {
-                category: formData.get('productCategory'),
-                availability: parseInt(formData.get('productStock')) > 0 ? 'In Stock' : 'Out of Stock'
-            }
+            dateAdded: new Date().toISOString()
         };
 
         // Handle image upload
@@ -1542,330 +1585,434 @@ async function handleProductSubmit(e) {
 
 // Add this function to handle category population and selection
 function setupProductCategorySelect() {
-    const select = document.getElementById('productCategory');
-    if (!select) return;
+    const productCategory = document.getElementById('productCategory');
+    if (!productCategory) return;
 
-    const wrapper = select.closest('.category-select-wrapper');
-    const iconPreview = wrapper.querySelector('.category-icon-preview');
-
-    // Clear existing options
-    while (select.options.length > 0) {
-        select.remove(0);
-    }
-
-    // Add default option
-    const defaultOption = new Option('Select Category', '', true, true);
-    defaultOption.disabled = true;
-    select.add(defaultOption);
-
-    // Add categories from state
-    dashboardState.categories.forEach(category => {
-        const option = document.createElement('option');
-        option.value = category.value;
-        option.textContent = category.name;
-        option.dataset.icon = category.icon;
-        option.dataset.id = category.id;
-        select.appendChild(option);
-    });
-
-    // Add change handler
-    select.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        
-        if (this.value) {
-            this.classList.add('selected');
-            wrapper.classList.add('has-value');
-            if (selectedOption.dataset.icon) {
-                iconPreview.innerHTML = `<i class="${selectedOption.dataset.icon}"></i>`;
-            }
+    // Set up category change handler
+    productCategory.addEventListener('change', (e) => {
+        if (e.target.value) {
+            e.target.classList.add('selected');
         } else {
-            this.classList.remove('selected');
-            wrapper.classList.remove('has-value');
-            iconPreview.innerHTML = '';
+            e.target.classList.remove('selected');
         }
-    });
-
-    // Add focus/blur handlers
-    select.addEventListener('focus', () => {
-        wrapper.classList.add('focused');
-    });
-    
-    select.addEventListener('blur', () => {
-        wrapper.classList.remove('focused');
     });
 
     // Add validation
-    select.addEventListener('invalid', (e) => {
+    productCategory.addEventListener('invalid', (e) => {
         if (e.target.validity.valueMissing) {
-            e.target.setCustomValidity('Please select a category');
+            e.target.setCustomValidity('Please select a product category');
         }
     });
 
-    select.addEventListener('change', (e) => {
+    productCategory.addEventListener('change', (e) => {
         e.target.setCustomValidity('');
     });
+}
 
-    // Set initial state if value exists
-    if (select.value) {
-        select.classList.add('selected');
-        wrapper.classList.add('has-value');
-        const selectedOption = select.options[select.selectedIndex];
-        if (selectedOption.dataset.icon) {
-            iconPreview.innerHTML = `<i class="${selectedOption.dataset.icon}"></i>`;
+// Update the existing showModal function
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    // If it's the product modal, ensure categories are set up
+    if (modalId === 'product-modal') {
+        setupProductCategorySelect();
+    }
+
+    modal.style.display = 'block';
+    modal.classList.add('fade-in');
+    document.body.style.overflow = 'hidden';
+}
+
+// ...existing code...
+
+function populateCategoryFilters() {
+    const categorySelect = document.getElementById('category-filter');
+    const productCategorySelect = document.getElementById('productCategory');
+    
+    if (!productCategorySelect || !categorySelect) return;
+
+    // Get categories from state
+    const categories = dashboardState.categories;
+    
+    // Clear existing options
+    while (categorySelect.options.length > 1) categorySelect.remove(1);
+    while (productCategorySelect.options.length > 1) productCategorySelect.remove(1);
+    
+    // Add categories to both selects
+    categories.forEach(category => {
+        // Add to filter dropdown
+        const filterOption = new Option(category.name, category.name);
+        categorySelect.add(filterOption);
+        
+        // Add to product form dropdown with the same value as display text
+        const productOption = new Option(category.name, category.name);
+        productCategorySelect.add(productOption);
+    });
+}
+
+// Update the initializeCategories function
+function initializeCategories() {
+    const defaultCategories = [
+        { id: 'cat_1', name: 'Mountain Bikes', icon: 'fas fa-mountain', productCount: 0, description: 'Off-road bikes for rough terrain' },
+        { id: 'cat_2', name: 'Road Bikes', icon: 'fas fa-road', productCount: 0, description: 'Lightweight bikes for paved surfaces' },
+        { id: 'cat_3', name: 'BMX Bikes', icon: 'fas fa-bicycle', productCount: 0, description: 'Bikes for tricks and racing' },
+        { id: 'cat_4', name: 'Electric Bikes', icon: 'fas fa-bolt', productCount: 0, description: 'Power-assisted bicycles' },
+        { id: 'cat_5', name: 'Hybrid Bikes', icon: 'fas fa-sync', productCount: 0, description: 'Multi-purpose bikes' },
+        { id: 'cat_6', name: 'Kids Bikes', icon: 'fas fa-child', productCount: 0, description: 'Bikes for children' },
+        { id: 'cat_7', name: 'Racing Bikes', icon: 'fas fa-flag-checkered', productCount: 0, description: 'Competition racing bicycles' },
+        { id: 'cat_8', name: 'Accessories', icon: 'fas fa-cog', productCount: 0, description: 'Bike accessories and gear' }
+    ];
+
+    // Initialize categories if not exists
+    if (!localStorage.getItem('categories')) {
+        localStorage.setItem('categories', JSON.stringify(defaultCategories));
+    }
+    
+    // Update dashboard state
+    dashboardState.categories = JSON.parse(localStorage.getItem('categories'));
+    
+    // Update category counts
+    updateCategoryProductCount();
+    
+    // Populate filters
+    populateCategoryFilters();
+}
+
+function updateCategoryProductCount() {
+    // Reset counts
+    const categoryCounts = new Map(dashboardState.categories.map(c => [c.name, 0]));
+    
+    // Count products in each category
+    dashboardState.products.forEach(product => {
+        if (product.category && categoryCounts.has(product.category)) {
+            categoryCounts.set(product.category, categoryCounts.get(product.category) + 1);
         }
+    });
+    
+    // Update category counts in state
+    dashboardState.categories = dashboardState.categories.map(category => ({
+        ...category,
+        productCount: categoryCounts.get(category.name) || 0
+    }));
+    
+    // Save updated categories
+    localStorage.setItem('categories', JSON.stringify(dashboardState.categories));
+}
+
+// Update the category submission handler
+async function handleCategorySubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    const editId = form.dataset.editId;
+
+    try {
+        const categoryData = {
+            id: editId || `cat_${Date.now()}`,
+            name: formData.get('categoryName'),
+            icon: formData.get('categoryIcon') || 'fas fa-folder',
+            description: formData.get('categoryDescription'),
+            productCount: 0
+        };
+
+        if (editId) {
+            // Update existing category
+            dashboardState.categories = dashboardState.categories.map(c => 
+                c.id === editId ? categoryData : c
+            );
+        } else {
+            // Add new category
+            dashboardState.categories.push(categoryData);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('categories', JSON.stringify(dashboardState.categories));
+        
+        // Refresh UI
+        refreshCategories();
+        populateCategoryFilters();
+        hideModal('category-modal');
+        showNotification(`Category ${editId ? 'updated' : 'added'} successfully`);
+        form.reset();
+        delete form.dataset.editId;
+    } catch (error) {
+        console.error('Error saving category:', error);
+        showNotification('Error saving category', 'error');
     }
 }
 
-// Ensure this runs when initializing forms
-document.addEventListener('DOMContentLoaded', () => {
-    // ...existing code...
-    setupProductCategorySelect();
-});
-
 // ...existing code...
 
-function populateCategorySelect() {
-    setupProductCategorySelect();
-}
+// Enhanced Button Manager
+const ButtonManager = {
+    setupButtons() {
+        // Action buttons setup
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            this.setupActionButton(btn);
+        });
 
-// ...existing code...
+        // Primary buttons setup
+        document.querySelectorAll('.primary-btn').forEach(btn => {
+            this.setupPrimaryButton(btn);
+        });
 
-// Category Modal Functionality
-function setupCategoryModal() {
-    const modal = document.getElementById('category-modal');
-    const form = document.getElementById('category-form');
-    const iconInput = document.getElementById('categoryIcon');
-    const closeBtn = modal.querySelector('.close-btn');
-    const cancelBtn = modal.querySelector('[data-action="cancel"]');
-    
-    // Icon Preview
-    iconInput.addEventListener('input', (e) => {
-        const preview = modal.querySelector('.icon-preview');
-        preview.innerHTML = e.target.value ? `<i class="${e.target.value}"></i>` : '';
-    });
-    
-    // Close Modal
-    const closeModal = () => {
-        modal.classList.remove('fade-in');
-        form.reset();
-        delete form.dataset.editId;
-        setTimeout(() => modal.style.display = 'none', 300);
-    };
-    
-    closeBtn.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    
-    // Form Submission
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+        // Danger buttons setup
+        document.querySelectorAll('.danger-btn').forEach(btn => {
+            this.setupDangerButton(btn);
+        });
+    },
+
+    setupActionButton(btn) {
+        btn.addEventListener('click', (e) => {
+            // Add ripple effect
+            this.addRippleEffect(e);
+            
+            // Add loading state if button has data-action
+            if (btn.dataset.action) {
+                this.handleActionClick(btn);
+            }
+        });
+    },
+
+    setupPrimaryButton(btn) {
+        const originalText = btn.innerHTML;
         
-        const submitBtn = form.querySelector('[type="submit"]');
-        submitBtn.classList.add('loading');
+        btn.addEventListener('click', async (e) => {
+            if (btn.disabled || btn.classList.contains('loading')) return;
+            
+            try {
+                btn.classList.add('loading');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+                
+                // Wait for any async operation
+                if (btn.onclick) {
+                    await btn.onclick(e);
+                }
+            } finally {
+                setTimeout(() => {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }, 500);
+            }
+        });
+    },
+
+    setupDangerButton(btn) {
+        btn.addEventListener('click', (e) => {
+            const confirmMessage = btn.dataset.confirm || 'Are you sure you want to perform this action?';
+            
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            
+            this.addRippleEffect(e);
+            btn.classList.add('loading');
+        });
+    },
+
+    addRippleEffect(e) {
+        const btn = e.currentTarget;
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = `${size}px`;
+        
+        const x = e.clientX - rect.left - size/2;
+        const y = e.clientY - rect.top - size/2;
+        
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    },
+
+    async handleActionClick(btn) {
+        const action = btn.dataset.action;
+        const originalText = btn.innerHTML;
         
         try {
-            const formData = new FormData(form);
-            const categoryData = {
-                id: form.dataset.editId || `cat_${Date.now()}`,
-                name: formData.get('categoryName').trim(),
-                icon: formData.get('categoryIcon') || 'fas fa-folder',
-                description: formData.get('categoryDescription').trim(),
-                productCount: 0,
-                dateAdded: new Date().toISOString()
-            };
+            btn.classList.add('loading');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
-            // Validate data
-            if (categoryData.name.length < 3) {
-                throw new Error('Category name must be at least 3 characters');
+            switch(action) {
+                case 'save':
+                    await handleSave();
+                    break;
+                case 'delete':
+                    await handleDelete();
+                    break;
+                // Add more actions as needed
             }
-            
-            // Get existing categories
-            const categories = JSON.parse(localStorage.getItem('categories') || '[]');
-            
-            // Check for duplicate names
-            const isDuplicate = categories.some(cat => 
-                cat.name.toLowerCase() === categoryData.name.toLowerCase() && 
-                cat.id !== categoryData.id
-            );
-            
-            if (isDuplicate) {
-                throw new Error('Category name already exists');
-            }
-            
-            // Update or add category
-            if (form.dataset.editId) {
-                const index = categories.findIndex(c => c.id === form.dataset.editId);
-                if (index !== -1) {
-                    categories[index] = { ...categories[index], ...categoryData };
-                }
-            } else {
-                categories.push(categoryData);
-            }
-            
-            localStorage.setItem('categories', JSON.stringify(categories));
-            
-            // Update UI
-            loadCategories();
-            closeModal();
-            showNotification(`Category ${form.dataset.editId ? 'updated' : 'added'} successfully`);
-            
         } catch (error) {
             showNotification(error.message, 'error');
         } finally {
             submitBtn.classList.remove('loading');
         }
+    }
+};
+
+// Update button click handlers
+function attachButtonHandlers() {
+    // Clear products button
+    const clearProductsBtn = document.getElementById('clear-products-btn');
+    if (clearProductsBtn) {
+        clearProductsBtn.dataset.confirm = 'Are you sure you want to clear all products? This action cannot be undone!';
+        ButtonManager.setupDangerButton(clearProductsBtn);
+    }
+
+    // Add product button
+    const addProductBtn = document.getElementById('add-product-btn');
+    if (addProductBtn) {
+        ButtonManager.setupPrimaryButton(addProductBtn);
+    }
+
+    // Action buttons in tables
+    document.querySelectorAll('.action-btns button').forEach(btn => {
+        ButtonManager.setupActionButton(btn);
     });
 }
 
-// Initialize on page load
+// Call this after any dynamic content update
+function refreshButtons() {
+    ButtonManager.setupButtons();
+}
+
+// ...rest of existing code...
+
+function setupCategoryModal() {
+    const modal = document.getElementById('category-modal');
+    const form = document.getElementById('category-form');
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const closeBtn = modal.querySelector('.close-btn');
+    const cancelBtn = modal.querySelector('[data-action="cancel"]');
+
+    // Add Category button handler
+    addCategoryBtn.addEventListener('click', () => {
+        resetCategoryForm();
+        showModal('category-modal');
+    });
+
+    // Close modal handlers
+    closeBtn.addEventListener('click', () => hideModal('category-modal'));
+    cancelBtn.addEventListener('click', () => hideModal('category-modal'));
+
+    // Form submission handler
+    form.addEventListener('submit', handleCategorySubmit);
+
+    // Icon preview handler
+    const iconInput = form.querySelector('#categoryIcon');
+    iconInput.addEventListener('input', updateIconPreview);
+}
+
+async function handleCategorySubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('[type="submit"]');
+    
+    try {
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        const formData = new FormData(form);
+        const categoryData = {
+            id: form.dataset.editId || `cat_${Date.now()}`,
+            name: formData.get('categoryName').trim(),
+            icon: formData.get('categoryIcon').trim() || 'fas fa-folder',
+            description: formData.get('categoryDescription').trim(),
+            productCount: 0
+        };
+
+        // Validate category data
+        if (!categoryData.name || categoryData.name.length < 3) {
+            throw new Error('Category name must be at least 3 characters');
+        }
+
+        if (categoryData.name.length > 50) {
+            throw new Error('Category name must be less than 50 characters');
+        }
+
+        // Check for duplicate names
+        const isDuplicate = dashboardState.categories.some(cat => 
+            cat.name.toLowerCase() === categoryData.name.toLowerCase() &&
+            cat.id !== categoryData.id
+        );
+
+        if (isDuplicate) {
+            throw new Error('A category with this name already exists');
+        }
+
+        // Save category
+        if (form.dataset.editId) {
+            // Update existing category
+            dashboardState.categories = dashboardState.categories.map(cat =>
+                cat.id === form.dataset.editId ? categoryData : cat
+            );
+        } else {
+            // Add new category
+            dashboardState.categories.push(categoryData);
+        }
+
+        // Save to localStorage
+        localStorage.setItem('categories', JSON.stringify(dashboardState.categories));
+
+        // Update UI
+        refreshCategories();
+        populateCategoryFilters();
+        hideModal('category-modal');
+        showNotification(`Category ${form.dataset.editId ? 'updated' : 'added'} successfully`);
+        
+        // Reset form
+        resetCategoryForm();
+
+    } catch (error) {
+        showNotification(error.message, 'error');
+    } finally {
+        submitBtn.classList.remove('loading');
+        submitBtn.disabled = false;
+    }
+}
+
+function resetCategoryForm() {
+    const form = document.getElementById('category-form');
+    form.reset();
+    delete form.dataset.editId;
+    
+    // Reset icon preview
+    const iconPreview = form.querySelector('.icon-preview');
+    if (iconPreview) {
+        iconPreview.innerHTML = '';
+    }
+    
+    // Reset validation states
+    Array.from(form.elements).forEach(el => {
+        el.classList.remove('error');
+        el.disabled = false;
+    });
+}
+
+function updateIconPreview(e) {
+    const iconClass = e.target.value.trim();
+    const preview = document.querySelector('.icon-preview');
+    
+    if (iconClass) {
+        preview.innerHTML = `<i class="${iconClass}"></i>`;
+    } else {
+        preview.innerHTML = '<i class="fas fa-folder"></i>';
+    }
+}
+
+// Add this to your initialization code
 document.addEventListener('DOMContentLoaded', () => {
     // ...existing initialization code...
     setupCategoryModal();
 });
 
 // ...existing code...
-
-function setupCategoryModal() {
-    const modal = document.getElementById('category-modal');
-    const form = document.getElementById('category-form');
-    const closeButtons = modal.querySelectorAll('.close-btn, [data-action="cancel"]');
-    
-    // Close modal functionality
-    const closeModal = () => {
-        modal.classList.remove('fade-in');
-        form.reset();
-        delete form.dataset.editId;
-        const iconPreview = modal.querySelector('.icon-preview');
-        if (iconPreview) iconPreview.innerHTML = '';
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-        }, 300);
-    };
-    
-    // Add click handlers to all close buttons
-    closeButtons.forEach(btn => {
-        btn.addEventListener('click', closeModal);
-    });
-    
-    // Close on outside click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-    });
-    
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'block') {
-            closeModal();
-        }
-    });
-
-    // ...rest of existing setupCategoryModal code...
-}
-
-function showCategoryModal(editId = null) {
-    const modal = document.getElementById('category-modal');
-    const title = document.getElementById('category-modal-title');
-    
-    // Update title based on mode
-    title.textContent = editId ? 'Edit Category' : 'Add Category';
-    
-    // Show modal
-    modal.style.display = 'block';
-    modal.classList.add('fade-in');
-    document.body.style.overflow = 'hidden';
-}
-
-/* ...existing code... */
-
-function setupCategoryModal() {
-    const modal = document.getElementById('category-modal');
-    const form = document.getElementById('category-form');
-    const closeButtons = modal.querySelectorAll('.close-btn, [data-action="cancel"]');
-    const addCategoryBtn = document.getElementById('add-category-btn');
-    
-    // Add Category button click handler
-    addCategoryBtn.addEventListener('click', () => {
-        form.reset();
-        delete form.dataset.editId;
-        modal.querySelector('.modal-header h3').textContent = 'Add Category';
-        showModal('category-modal');
-    });
-
-    // Form submission handler
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const submitBtn = form.querySelector('[type="submit"]');
-        submitBtn.classList.add('loading');
-        
-        try {
-            const formData = new FormData(form);
-            
-            // Validate required fields
-            if (!formData.get('categoryName').trim()) {
-                throw new Error('Category name is required');
-            }
-
-            const categoryData = {
-                id: `cat_${Date.now()}`,
-                name: formData.get('categoryName').trim(),
-                value: formData.get('categoryName').trim().toLowerCase().replace(/\s+/g, '-'),
-                icon: formData.get('categoryIcon') || 'fas fa-folder',
-                description: formData.get('categoryDescription').trim(),
-                productCount: 0
-            };
-
-            // Check for duplicate names
-            const isDuplicate = dashboardState.categories.some(cat => 
-                cat.name.toLowerCase() === categoryData.name.toLowerCase()
-            );
-            
-            if (isDuplicate) {
-                throw new Error('A category with this name already exists');
-            }
-
-            // Add new category
-            dashboardState.categories.push(categoryData);
-            localStorage.setItem('categories', JSON.stringify(dashboardState.categories));
-
-            // Update UI
-            refreshCategories();
-            hideModal('category-modal');
-            showNotification('Category added successfully', 'success');
-            form.reset();
-
-        } catch (error) {
-            showNotification(error.message, 'error');
-        } finally {
-            submitBtn.classList.remove('loading');
-        }
-    });
-
-    // Close modal handlers
-    closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => hideModal('category-modal'));
-    });
-
-    // Close on outside click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) hideModal('category-modal');
-    });
-
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.style.display === 'block') {
-            hideModal('category-modal');
-        }
-    });
-
-    // Icon preview handler
-    const iconInput = document.getElementById('categoryIcon');
-    iconInput.addEventListener('input', (e) => {
-        const preview = modal.querySelector('.icon-preview');
-        preview.innerHTML = e.target.value ? `<i class="${e.target.value}"></i>` : '';
-    });
-}
-
-/* ...existing code... */
-
-

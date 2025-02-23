@@ -138,7 +138,7 @@
                                 <i class="fas fa-plus"></i> Add Product
                             </button>
                             <input type="text" id="product-search" placeholder="Search products...">
-                            <select id="category-filter">
+                            <select id="category-filter" data-category-select>
                                 <option value="">All Categories</option>
                             
                                 
@@ -169,13 +169,13 @@
                     <div class="panel-header">
                         <h2>Categories Management</h2>
                         <button id="add-category-btn" class="primary-btn">
-                            <i class="fas fa-plus"></i> Add Category
+                            <i class="fas fa-plus"></i>
+                            Add Category
                         </button>
                     </div>
                     <div class="categories-grid" id="categories-grid">
                         <!-- Categories will be populated dynamically -->
                     </div>
-                    <div id="category-list-container"></div>
                 </div>
 
                 <!-- Customers Tab -->
@@ -226,10 +226,11 @@
                 <div class="form-group">
                     <label for="productCategory">Category*</label>
                     <div class="category-select-wrapper">
-                        <div class="category-icon-preview"></div>
-                        <select id="productCategory" name="productCategory" required>
+                        <i class="fas fa-folder category-icon-preview"></i>
+                        <select id="productCategory" 
+                                name="productCategory" 
+                                required>
                             <option value="" disabled selected>Select Category</option>
-                            <!-- Categories will be populated dynamically -->
                         </select>
                         <i class="fas fa-chevron-down select-arrow"></i>
                     </div>
@@ -273,8 +274,8 @@
     <div id="category-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="category-modal-title">Add Category</h3>
-                <button type="button" class="close-btn" aria-label="Close modal">&times;</button>
+                <h3>Add Category</h3>
+                <button type="button" class="close-btn">&times;</button>
             </div>
             <form id="category-form" novalidate>
                 <div class="form-group">
@@ -284,44 +285,41 @@
                            name="categoryName" 
                            required 
                            minlength="3"
-                           pattern="[A-Za-z0-9\s]+"
-                           aria-describedby="categoryNameHelp">
-                    <div id="categoryNameHelp" class="helper-text">
-                        Minimum 3 characters, alphanumeric only
-                    </div>
+                           maxlength="50"
+                           placeholder="Enter category name">
+                    <div class="helper-text">Must be 3-50 characters</div>
                 </div>
+
                 <div class="form-group">
                     <label for="categoryIcon">Icon Class</label>
                     <div class="icon-input-wrapper">
                         <input type="text" 
                                id="categoryIcon" 
                                name="categoryIcon" 
-                               placeholder="fas fa-bicycle"
-                               aria-describedby="categoryIconHelp">
-                        <div class="icon-preview"></div>
+                               placeholder="fas fa-bicycle">
+                        <div class="icon-preview">
+                            <i class="fas fa-folder"></i>
+                        </div>
                     </div>
-                    <div id="categoryIconHelp" class="helper-text">
-                        Use Font Awesome 6 icon classes (e.g., fas fa-bicycle)
-                    </div>
+                    <div class="helper-text">Use Font Awesome 6 icons (e.g., fas fa-bicycle)</div>
                 </div>
+
                 <div class="form-group">
-                    <label for="categoryDescription">Description*</label>
+                    <label for="categoryDescription">Description</label>
                     <textarea id="categoryDescription" 
-                              name="categoryDescription" 
-                              rows="3" 
-                              required
-                              maxlength="200"
-                              aria-describedby="categoryDescHelp"></textarea>
-                    <div id="categoryDescHelp" class="helper-text">
-                        Brief description of the category (max 200 characters)
-                    </div>
+                             name="categoryDescription" 
+                             rows="3"
+                             placeholder="Enter category description"
+                             maxlength="200"></textarea>
+                    <div class="helper-text">Maximum 200 characters</div>
                 </div>
+
                 <div class="form-actions">
                     <button type="button" class="secondary-btn" data-action="cancel">
-                        <i class="fas fa-times"></i> Cancel
+                        Cancel
                     </button>
-                    <button type="submit" class="primary-btn" id="saveCategoryBtn">
-                        <i class="fas fa-save"></i> <span>Save Category</span>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-save"></i> Save Category
                     </button>
                 </div>
             </form>
@@ -329,6 +327,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="categoryManager.js"></script>
     <script src="dashboard.js"></script>
     
 </body>
