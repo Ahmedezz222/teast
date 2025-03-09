@@ -60,12 +60,17 @@ function loadCategories() {
 function setupEventListeners() {
     // Close modal when clicking the close button or outside the modal
     const modal = document.getElementById('product-details-modal');
-    const closeBtn = modal.querySelector('.close');
+    const closeBtn = modal.querySelector('.close-btn');
     
     closeBtn.onclick = () => hideModal();
     window.onclick = (event) => {
         if (event.target === modal) hideModal();
     }
+
+    // Add ESC key listener
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') hideModal();
+    });
 
     // Filter controls
     document.getElementById('category-filter').addEventListener('change', filterProducts);
