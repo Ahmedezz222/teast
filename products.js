@@ -8,49 +8,52 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCategories();
 });
 
-// Add storage event listener
-window.addEventListener('storage', (e) => {
-    if (e.key === 'products') {
-        products = JSON.parse(e.newValue || '[]');
-        renderProducts();
-    } else if (e.key === 'categories') {
-        categories = JSON.parse(e.newValue || '[]');
-        populateCategoryFilter();
-    }
-});
-
-// Modify initializeProducts to include immediate render
-function initializeProducts() {
+async function initializeProducts() {
     try {
-        products = JSON.parse(localStorage.getItem('products') || '[]');
-        renderProducts();
-        
-        // Listen for updates from dashboard
-        window.addEventListener('productsUpdated', (e) => {
-            products = e.detail.products;
-            renderProducts();
-        });
+        loadProductsFromLocalStorage();
+        setupStorageListener();
     } catch (error) {
         console.error('Error loading products:', error);
         showNotification('Error loading products', 'error');
     }
 }
 
-// Update loadCategories to handle updates
+function loadProductsFromLocalStorage() {
+    try {
+        const storedProducts = localStorage.getItem('products');
+        if (!storedProducts) return;
+        
+        products = JSON.parse(storedProducts);
+        renderProducts(products);
+        
+        console.log('Products loaded:', products.length); // Debug log
+    } catch (error) {
+        console.error('Error loading products:', error);
+        showNotification('Error loading products', 'error');
+    }
+}
+
+function setupStorageListener() {
+    // Listen for storage events from other tabs
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'products') {
+            console.log('Storage event detected'); // Debug log
+            loadProductsFromLocalStorage();
+        }
+    });
+
+    // Also listen for direct changes
+    window.addEventListener('productsUpdated', () => {
+        loadProductsFromLocalStorage();
+    });
+}
+
 function loadCategories() {
     try {
         categories = JSON.parse(localStorage.getItem('categories') || '[]');
-        
-        // Listen for updates from dashboard
-        window.addEventListener('categoriesUpdated', (e) => {
-            categories = e.detail.categories;
-            populateCategoryFilter();
-        });
-
         populateCategoryFilter();
     } catch (error) {
         console.error('Error loading categories:', error);
-        showNotification('Error loading categories', 'error');
     }
 }
 
@@ -66,12 +69,19 @@ function setupEventListeners() {
 
     // Filter controls
     document.getElementById('category-filter').addEventListener('change', filterProducts);
-    document.getElementById('price-sort').addEventListener('change', filterProducts);
+    document.getElementById('price-sort').addEventListener('change', sortProducts);
 }
 
 function renderProducts(productsToRender = products) {
     const container = document.getElementById('products-container');
+    if (!container) return;
+    
     container.innerHTML = '';
+
+    if (!productsToRender.length) {
+        container.innerHTML = '<p class="no-products">No products available</p>';
+        return;
+    }
 
     productsToRender.forEach(product => {
         const card = createProductCard(product);
@@ -84,11 +94,12 @@ function createProductCard(product) {
     card.className = 'product-card';
     card.innerHTML = `
         <div class="product-image" onclick="showProductDetails('${product.id}')">
-            <img src="${product.image}" alt="${product.name}" loading="lazy">
+            <img src="${product.image || 'placeholder.jpg'}" alt="${product.name}" loading="lazy">
             ${product.stock <= 0 ? '<span class="stock-badge">Out of Stock</span>' : ''}
         </div>
         <div class="product-info">
             <h3>${product.name}</h3>
+            <p class="product-category">${product.category}</p>
             <p class="product-price">${formatCurrency(product.price)}</p>
             <div class="product-actions">
                 <button onclick="showProductDetails('${product.id}')" class="view-details-btn">
@@ -109,18 +120,17 @@ function createProductCard(product) {
     return card;
 }
 
-
 function showProductDetails(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
     const modal = document.getElementById('product-details-modal');
     
-    // Update modal content with all available product details
+    // Update modal content
     document.getElementById('modal-product-image').src = product.image;
     document.getElementById('modal-product-name').textContent = product.name;
     document.getElementById('modal-product-category').textContent = product.category;
-    document.getElementById('modal-product-description').textContent = product.description || 'No description available';
+    document.getElementById('modal-product-description').textContent = product.description;
     document.getElementById('modal-product-price').textContent = formatCurrency(product.price);
     document.getElementById('modal-product-stock').textContent = 
         product.stock > 0 ? `In Stock (${product.stock})` : 'Out of Stock';
@@ -129,7 +139,6 @@ function showProductDetails(productId) {
     const addToCartBtn = document.getElementById('modal-add-to-cart');
     if (product.stock > 0) {
         addToCartBtn.disabled = false;
-        addToCartBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
         addToCartBtn.onclick = () => addToCart(product.id);
     } else {
         addToCartBtn.disabled = true;
@@ -147,46 +156,45 @@ function hideModal() {
 
 function filterProducts() {
     const categoryFilter = document.getElementById('category-filter').value;
-    const priceSort = document.getElementById('price-sort').value;
     
     let filteredProducts = [...products];
     
-    // Apply category filter
     if (categoryFilter !== 'all') {
         filteredProducts = filteredProducts.filter(product => 
-            product.categoryId === categoryFilter
+            product.category === categoryFilter
         );
-    }
-    
-    // Apply price sort
-    switch (priceSort) {
-        case 'low-to-high':
-        filteredProducts.sort((a, b) => a.price - b.price);
-            break;
-        case 'high-to-low':
-        filteredProducts.sort((a, b) => b.price - a.price);
-            break;
     }
     
     renderProducts(filteredProducts);
 }
 
-function populateCategoryFilter() {
-    const select = document.getElementById('category-filter');
+function sortProducts() {
+    const sortValue = document.getElementById('price-sort').value;
+    let sortedProducts = [...products];
 
-    // Clear existing options except "All Categories"
-    while (select.options.length > 1) {
-        select.remove(1);
+    switch (sortValue) {
+        case 'low-to-high':
+            sortedProducts.sort((a, b) => a.price - b.price);
+            break;
+        case 'high-to-low':
+            sortedProducts.sort((a, b) => b.price - a.price);
+            break;
+        default:
+            // Default sorting (by dateAdded or id)
+            sortedProducts = [...products];
     }
 
-    // Get categories from localStorage
-    const categories = JSON.parse(localStorage.getItem('categories') || '[]');
+    renderProducts(sortedProducts);
+}
 
-    // Add categories with icons and product counts
-    categories.forEach(category => {
+function populateCategoryFilter() {
+    const select = document.getElementById('category-filter');
+    const uniqueCategories = new Set(products.map(p => p.category));
+    
+    uniqueCategories.forEach(category => {
         const option = document.createElement('option');
-        option.value = category.id;
-        option.innerHTML = `<i class="${category.icon}"></i> ${category.name} (${category.productCount})`;
+        option.value = category;
+        option.textContent = category;
         select.appendChild(option);
     });
 }
@@ -256,106 +264,3 @@ function updateCartCount() {
 
 // Initialize cart count on page load
 updateCartCount();
-// Category initialization
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Load categories from localStorage
-        const categories = JSON.parse(localStorage.getItem('categories')) || [];
-        const categorySelect = document.getElementById('categorySelect');
-        
-        // Clear existing options except "All Categories"
-        while (categorySelect.options.length > 1) {
-            categorySelect.remove(1);
-        }
-        
-        // Populate category select with icons
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.name;
-            option.dataset.icon = category.icon;
-            categorySelect.appendChild(option);
-        });
-
-        // Enhanced change event listener
-        categorySelect.addEventListener('change', (e) => {
-            filterProducts();
-            updateSelectIcon(e.target);
-        });
-        
-        // Initial icon update
-        updateSelectIcon(categorySelect);
-        
-    } catch (error) {
-        console.error('Error loading categories:', error);
-    }
-});
-
-function updateSelectIcon(select) {
-    const selectedOption = select.options[select.selectedIndex];
-    const iconElement = select.parentElement.querySelector('.select-icon');
-    
-    if (iconElement && selectedOption.dataset.icon) {
-        iconElement.className = selectedOption.dataset.icon + ' select-icon';
-    }
-}
-
-function filterProducts() {
-    const selectedCategory = document.getElementById('categorySelect').value;
-    const products = JSON.parse(localStorage.getItem('products')) || [];
-    const container = document.getElementById('productsContainer');
-    
-    const filteredProducts = selectedCategory ? 
-        products.filter(product => product.categoryId === selectedCategory) :
-        products;
-        
-    // Clear container
-    container.innerHTML = '';
-    
-    // Render filtered products
-    filteredProducts.forEach(product => {
-        const productCard = createProductCard(product);
-        container.appendChild(productCard);
-    });
-}
-
-function createProductCard(product) {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    
-    // Get category details
-    const categories = JSON.parse(localStorage.getItem('categories')) || [];
-    const category = categories.find(c => c.id === product.categoryId);
-    
-    card.innerHTML = `
-        <div class="product-image">
-            <img src="${product.image}" alt="${product.name}" loading="lazy">
-            ${product.stock <= 0 ? '<span class="out-of-stock">Out of Stock</span>' : ''}
-        </div>
-        <div class="product-info">
-            ${category ? `
-                <div class="category-badge" title="${category.description || ''}">
-                    <i class="${category.icon}"></i>
-                    <span>${category.name}</span>
-                </div>
-            ` : ''}
-            <h3>${product.name}</h3>
-            <p class="price">${formatCurrency(product.price)}</p>
-            <div class="product-actions">
-                <button class="add-to-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>
-                    <i class="fas fa-shopping-cart"></i>
-                    ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                </button>
-            </div>
-        </div>
-    `;
-    
-    return card;
-}
-
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('en-EG', {
-        style: 'currency',
-        currency: 'EGP'
-    }).format(amount);
-}

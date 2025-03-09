@@ -214,3 +214,12 @@ if (typeof window !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CategoryManager;
 }
+
+// Example function
+function addCategory(categoryData) {
+    // Add category logic here
+    console.log('Adding category:', categoryData);
+}
+
+// Export functions if needed
+export { addCategory };

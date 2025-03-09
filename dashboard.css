@@ -1442,8 +1442,6 @@ select#productCategory option:hover {
     animation: spin 1s linear infinite;
 }
 
-/* ...existing code... */
-
 /* Category Modal Specific Styles */
 #category-modal .modal-content {
     max-width: 500px;
@@ -1520,10 +1518,7 @@ select#productCategory option:hover {
     animation: spin 1s linear infinite;
 }
 
-/* ...existing code... */
-
-/* ...existing code... */
-
+/* Category Select Wrapper */
 .category-select-wrapper {
     position: relative;
     width: 100%;
@@ -1608,10 +1603,7 @@ select#productCategory option:hover {
     color: #6c757d;
 }
 
-/* ...existing code... */
-
-/* ...existing code... */
-
+/* Category Cell */
 .category-cell {
     display: flex;
     align-items: center;
@@ -1692,10 +1684,7 @@ select#productCategory option:hover {
     color: #007bff;
 }
 
-/* ...existing code... */
-
-/* ...existing code... */
-
+/* Category Card */
 .category-card {
     background: #fff;
     border-radius: 8px;
@@ -1807,8 +1796,6 @@ select#productCategory option:hover {
 #add-category-btn i {
     font-size: 1.1em;
 }
-
-/* ...existing code... */
 
 /* Enhanced Category Grid Layout */
 .categories-grid {
@@ -1951,10 +1938,7 @@ select#productCategory option:hover {
     margin-left: 1rem;
 }
 
-/* ...existing code... */
-
-/* ...existing code... */
-
+/* Category Select Wrapper */
 .category-select-wrapper {
     position: relative;
     width: 100%;
@@ -2010,5 +1994,3 @@ select#productCategory option:hover {
 .category-select-wrapper.has-value .category-icon-preview {
     color: #007bff;
 }
-
-/* ...existing code... */

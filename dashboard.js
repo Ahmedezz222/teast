@@ -1396,6 +1396,13 @@ document.getElementById('product-form').addEventListener('submit', async functio
 
         // Save to localStorage
         localStorage.setItem('products', JSON.stringify(products));
+
+        // Dispatch storage event
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'products',
+            newValue: JSON.stringify(dashboardState.products),
+            storageArea: localStorage
+        }));
         
         // Update dashboard state
         dashboardState.products = products;
@@ -1563,6 +1570,13 @@ async function handleProductSubmit(e) {
 
         // Save to localStorage
         localStorage.setItem('products', JSON.stringify(dashboardState.products));
+
+        // Dispatch storage event
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'products',
+            newValue: JSON.stringify(dashboardState.products),
+            storageArea: localStorage
+        }));
 
         // Refresh UI
         refreshProducts();
