@@ -1,0 +1,23 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Mountain Bike Pro",
+            "category": "Mountain Bikes",
+            "price": 999.99,
+            "description": "Professional-grade mountain bike with full suspension and premium components.",
+            "image": "data/images/mountain-bike-pro.jpg",
+            "stock": 5
+        },
+        {
+            "id": 2,
+            "name": "Road Warrior",
+            "category": "Road Bikes",
+            "price": 1299.99,
+            "description": "Lightweight road bike perfect for racing and long-distance rides.",
+            "image": "data/images/road-warrior.jpg",
+            "stock": 3
+        }
+        // Add more products as needed
+    ]
+}
