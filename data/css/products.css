@@ -1,0 +1,269 @@
+.products-hero {
+    margin-top: var(--header-height);
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('data/css/img/hero-products.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 100px 20px;
+    text-align: center;
+    color: white;
+}
+
+.products-hero h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.products-controls {
+    padding: 20px;
+    background: #f5f5f5;
+    margin-bottom: 30px;
+}
+
+.filters {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.filters select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    min-width: 200px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 800px);
+    margin-bottom: 4rem;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.product-details {
+    padding: 15px;
+}
+
+.product-name {
+    font-size: 1.2em;
+    margin: 0 0 10px 0;
+}
+
+.product-category {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.product-price {
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 10px 0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+}
+
+.modal-content {
+    position: relative;
+    background: white;
+    margin: 5% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.product-image-gallery {
+    width: 100%;
+}
+
+.main-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.product-info {
+    padding: 20px;
+}
+
+.modal-actions {
+    margin-top: 20px;
+}
+
+.add-to-cart-btn {
+    background: #2c3e50;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+    background: #34495e;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal-content {
+        grid-template-columns: 1fr;
+        margin: 10% auto;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .products-hero h1 {
+        font-size: 2em;
+    }
+
+    .products-hero {
+        padding: 60px 15px;
+    }
+
+    .products-hero h1 {
+        font-size: 2rem;
+    }
+
+    .filters {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filters select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .product-card {
+        margin-bottom: 15px;
+    }
+
+    .product-image {
+        height: 160px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 15px;
+        margin: 10% auto;
+    }
+
+    .product-details {
+        padding: 10px;
+    }
+
+    .order-notification {
+        width: 90%;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-name {
+        font-size: 1.1em;
+    }
+}
+
+.order-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.order-notification.success {
+    background: #28a745;
+}
+
+.order-notification.error {
+    background: #dc3545;
+}
+
+.order-notification.show {
+    transform: translateX(0);
+}
+
+.order-notification i {
+    font-size: 1.2em;
+}
+
