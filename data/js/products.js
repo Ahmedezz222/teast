@@ -7,16 +7,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('product-details-modal');
     const closeBtn = modal.querySelector('.close-btn');
 
-    // Fetch products from JSON file
+    // Fetch products from localStorage and JSON file
     async function fetchProducts() {
         try {
+            // First try to get products from localStorage
+            const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
+            
+            // Then try to fetch default products from JSON file
             const response = await fetch('data/products.json');
-            products = await response.json();
+            const defaultProducts = await response.json();
+            
+            // Combine both sources, with localStorage taking precedence
+            products = [...defaultProducts, ...storedProducts];
+            
+            // Remove duplicates based on ID
+            products = Array.from(new Map(products.map(item => [item.id, item])).values());
+            
             populateCategories();
             displayProducts(products);
         } catch (error) {
             console.error('Error loading products:', error);
-            productsContainer.innerHTML = '<p class="error">Failed to load products. Please try again later.</p>';
+            // If JSON fetch fails, still use localStorage products
+            products = JSON.parse(localStorage.getItem('products')) || [];
+            populateCategories();
+            displayProducts(products);
         }
     }
 
@@ -95,17 +109,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add to cart functionality
     document.getElementById('modal-add-to-cart').addEventListener('click', function() {
         const productName = document.getElementById('modal-product-name').textContent;
-        const currentCount = parseInt(localStorage.getItem('cartCount') || '0');
-        localStorage.setItem('cartCount', currentCount + 1);
+        const currentProduct = products.find(p => p.name === productName);
         
-        // Update cart count in header
-        document.getElementById('cart-count').textContent = currentCount + 1;
-        
-        // Show notification
-        showNotification(`${productName} added to cart!`, 'success');
-        
-        // Close modal
-        modal.style.display = 'none';
+        if (currentProduct && currentProduct.stock > 0) {
+            if (window.cartManager.addToCart(currentProduct)) {
+                // Update stock in localStorage
+                currentProduct.stock--;
+                const allProducts = JSON.parse(localStorage.getItem('products')) || [];
+                const productIndex = allProducts.findIndex(p => p.id === currentProduct.id);
+                if (productIndex !== -1) {
+                    allProducts[productIndex].stock = currentProduct.stock;
+                    localStorage.setItem('products', JSON.stringify(allProducts));
+                }
+                
+                // Show mini cart and notification
+                window.cartManager.showMiniCart();
+                showNotification(`${productName} added to cart!`, 'success');
+                modal.style.display = 'none';
+            }
+        } else {
+            showNotification('Product is out of stock!', 'error');
+        }
     });
 
     // Close modal
