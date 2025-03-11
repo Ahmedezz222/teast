@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="x-icon" href="data/css/img/bike yard logo.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Yard</title>
+    <link rel="stylesheet" href="data/css/styles.css">
+    <link rel="stylesheet" href="data/css/products.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="data/css/img/bike yard logo.png" alt="Bike Yard Logo">
+        </a>
+        <button class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="nav-menu">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="data/css/img/Menu.pdf">Cafe Menu</a><li>
+                    <a href="bikeyardcart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        Cart
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="products-hero">
+        <h1>Explore Our Products</h1>
+        <p>Discover the perfect bike and gear for your next adventure.</p>
+    </section>
+
+    <!-- Add this section for filtering and product management -->
+    <div class="products-controls">
+        <div class="filters">
+            <select id="category-filter" onchange="filterProducts()">
+                <option value="all">All Categories</option>
+            </select>
+            <select id="price-sort" onchange="sortProducts()">
+                <option value="default">Sort by Price</option>
+                <option value="low-to-high">Low to High</option>
+                <option value="high-to-low">High to Low</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="products-container" class="products-grid">
+        <!-- Products will be loaded dynamically -->
+        <div class="loading-spinner">Loading products...</div>
+    </div>
+
+    <!-- Product Details Modal -->
+    <div id="product-details-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="product-image-gallery">
+                <div class="main-image">
+                    <img src="" alt="" id="modal-product-image">
+                </div>
+            </div>
+            <div class="product-info">
+                <h2 id="modal-product-name"></h2>
+                <p id="modal-product-category" class="category"></p>
+                <p id="modal-product-description" class="description"></p>
+                <div class="price-stock">
+                    <p id="modal-product-price" class="price"></p>
+                    <p id="modal-product-stock" class="stock"></p>
+                </div>
+                <div class="modal-actions">
+                    <button id="modal-add-to-cart" class="add-to-cart-btn">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact CTA -->
+    <section class="contact-cta">
+        <h2>Have Questions?</h2>
+        <p>Contact our team for assistance with your bike, gear, or order.</p>
+        <a href="contact.html" class="btn-primary">Contact Us</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Bike Yard Shop. All Rights Reserved.</p>
+    </footer>
+
+    <!-- Scripts - Add defer attribute -->
+    <script defer src="data/js/scripts.js"></script>
+    <script defer src="data/js/products.js"></script>
+</body>
+</html>

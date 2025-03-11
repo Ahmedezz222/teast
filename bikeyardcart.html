@@ -1,0 +1,118 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="x-icon" href="data/css/img/bike yard logo.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Bike Yard Shop</title>
+    <link rel="stylesheet" href="data/css/styles.css">
+    <link rel="stylesheet" href="data/css/cart.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("-wDZ6NmB97G6Gt_kX"); // Replace with your actual public key
+        })();
+    </script>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">
+            <img src="data/css/img/bike yard logo.png" alt="Bike Yard Logo">
+        </a>
+        <button class="menu-toggle" id="menu-toggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <nav id="nav-menu">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="Menu.pdf">Cafe Menu</a><li>
+                    <a href="bikeyardcart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        Cart
+                        <span class="cart-count" id="cart-count">0</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Cart Checkout Section -->
+    <section class="checkout-section">
+        <div class="container">
+            <h1>Cart Checkout</h1>
+            <div class="checkout-container">
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h3>Order Summary</h3>
+                    <div id="cart-content">
+                        <!-- This div will be shown when cart has items -->
+                        <div class="cart-has-items">
+                            <table class="shopping-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Action</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="cart-items">
+                                    <!-- Cart items will be inserted here by JavaScript -->
+                                </tbody>
+                            </table>
+                            <p>
+                                <strong>Subtotal:</strong> 
+                                <span id="order-subtotal">0 EGP</span>
+                            </p>
+                        </div>
+                        
+                        <!-- This div will be shown when cart is empty -->
+                        <div class="cart-empty" style="display: none;">
+                            <i class="fas fa-shopping-cart"></i>
+                            <p>Your cart is empty</p>
+                            <a href="products.html" class="btn-primary">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checkout-form">
+                    <div class="contact-box">
+                        <div class="right">
+                            <h2>Checkout</h2>
+                            <form id="orderForm">
+                                <input type="text" id="name" class="field" placeholder="Full Name" required>
+                                <input type="email" id="email" class="field" placeholder="Your Email" required>
+                                <input type="tel" id="phone" class="field" placeholder="Phone Number" required>
+                                <input type="text" id="address" class="field" placeholder="Delivery Address" required>
+                                <select id="payment" class="field" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="cash">Cash on Delivery</option>
+                                    <option value="vodafone">Vodafone Cash</option>
+                                </select>
+                                <textarea id="notes" placeholder="Order Notes" class="field"></textarea>
+                                <button type="submit" class="btn">Confirm Order</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2024 Bike Yard Shop. All Rights Reserved.</p>
+    </footer>
+
+    <script src="data/js/scripts.js"></script>
+    <script src="data/js/cart.js"></script>
+</body>
+</html>
