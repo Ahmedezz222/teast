@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             renderTable(store.products, '.products-table tbody', product => `
                 <tr>
                     <td>${product.name}</td>
-                    <td>$${product.price.toFixed(2)}</td>
+                    <td>£${product.price.toFixed(2)}</td>
                     <td>${product.category}</td>
                     <td>
                         <button class="action-btn edit" data-id="${product.id}">
@@ -219,6 +219,73 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Settings saved successfully!');
         });
     }
+
+    // Add Database Management
+    class DatabaseManager {
+        constructor() {
+            this.syncInterval = 5000; // 5 seconds
+            this.initSync();
+        }
+
+        async initSync() {
+            await this.loadAdminData();
+            this.startAutoSync();
+        }
+
+        async loadAdminData() {
+            try {
+                const response = await fetch('./data/admin-db.json');
+                const adminData = await response.json();
+                localStorage.setItem('adminSettings', JSON.stringify(adminData.settings));
+                this.updateDashboardStats(adminData.stats);
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+            }
+        }
+
+        startAutoSync() {
+            setInterval(() => this.syncData(), this.syncInterval);
+        }
+
+        async syncData() {
+            try {
+                // Sync products
+                const products = JSON.parse(localStorage.getItem('products')) || [];
+                
+                // Sync orders
+                const orders = JSON.parse(localStorage.getItem('orders')) || [];
+                
+                // Update stats
+                const stats = {
+                    totalOrders: orders.length,
+                    totalRevenue: orders.reduce((sum, order) => sum + parseFloat(order.total.replace(/[^0-9.-]+/g,"")), 0),
+                    totalUsers: parseInt(localStorage.getItem('totalUsers') || '0'),
+                    totalProducts: products.length
+                };
+
+                // Update dashboard
+                this.updateDashboardStats(stats);
+                
+                // Save to localStorage
+                localStorage.setItem('adminStats', JSON.stringify(stats));
+            } catch (error) {
+                console.error('Error syncing data:', error);
+            }
+        }
+
+        updateDashboardStats(stats) {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            if (statNumbers.length >= 4) {
+                statNumbers[0].textContent = stats.totalOrders;
+                statNumbers[1].textContent = stats.totalUsers;
+                statNumbers[2].textContent = stats.totalProducts;
+                statNumbers[3].textContent = `£${stats.totalRevenue.toFixed(2)}`;
+            }
+        }
+    }
+
+    // Initialize database manager
+    const dbManager = new DatabaseManager();
 
     // Initialize all components
     initializeNavigation();

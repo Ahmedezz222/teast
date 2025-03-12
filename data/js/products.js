@@ -7,27 +7,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('product-details-modal');
     const closeBtn = modal.querySelector('.close-btn');
 
-    // Fetch products from localStorage and JSON file
+    // Optimize fetchProducts with caching
     async function fetchProducts() {
         try {
-            // First try to get products from localStorage
-            const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
+            const cacheKey = 'bikeyard_products_cache';
+            const cacheExpiry = 'bikeyard_products_cache_expiry';
+            const expiryTime = 3600000; // 1 hour cache
+
+            // Check cache first
+            const cachedData = localStorage.getItem(cacheKey);
+            const cacheTimestamp = localStorage.getItem(cacheExpiry);
             
-            // Then try to fetch default products from JSON file
-            const response = await fetch('data/products.json');
-            const defaultProducts = await response.json();
+            if (cachedData && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < expiryTime) {
+                products = JSON.parse(cachedData);
+                populateCategories();
+                displayProducts(products);
+                return;
+            }
+
+            // Fetch both database sources
+            const [productsResponse, adminResponse] = await Promise.all([
+                fetch('./data/json/products.json'),
+                fetch('./data/json/admin-db.json')
+            ]);
+
+            const productsData = await productsResponse.json();
+            const adminData = await adminResponse.json();
             
-            // Combine both sources, with localStorage taking precedence
-            products = [...defaultProducts, ...storedProducts];
+            // Combine products with admin settings
+            products = productsData.products.map(product => ({
+                ...product,
+                currency: adminData.settings.currency
+            }));
             
-            // Remove duplicates based on ID
-            products = Array.from(new Map(products.map(item => [item.id, item])).values());
+            // Update cache
+            localStorage.setItem(cacheKey, JSON.stringify(products));
+            localStorage.setItem(cacheExpiry, Date.now().toString());
             
             populateCategories();
             displayProducts(products);
         } catch (error) {
             console.error('Error loading products:', error);
-            // If JSON fetch fails, still use localStorage products
             products = JSON.parse(localStorage.getItem('products')) || [];
             populateCategories();
             displayProducts(products);
@@ -45,14 +65,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Display products
+    // Optimize product display with lazy loading
     function displayProducts(productsToShow) {
         productsContainer.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        
         productsToShow.forEach(product => {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
             productCard.innerHTML = `
-                <img src="${product.image}" alt="${product.name}" class="product-image">
+                <img src="${product.image}" alt="${product.name}" class="product-image" loading="lazy">
                 <div class="product-details">
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-category">${product.category}</p>
@@ -60,8 +82,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             `;
             productCard.addEventListener('click', () => showProductDetails(product));
-            productsContainer.appendChild(productCard);
+            fragment.appendChild(productCard);
         });
+        
+        productsContainer.appendChild(fragment);
     }
 
     // Filter products
@@ -122,13 +146,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('products', JSON.stringify(allProducts));
                 }
                 
-                // Show mini cart and notification
-                window.cartManager.showMiniCart();
-                showNotification(`${productName} added to cart!`, 'success');
+                // Show success message
+                showNotification(`${productName} has been added to your cart!`, 'success');
+                
+                // Optional: Add view cart button to notification
+                const viewCartBtn = document.createElement('button');
+                viewCartBtn.textContent = 'View Cart';
+                viewCartBtn.onclick = () => window.location.href = 'bikeyardcart.html';
+                document.querySelector('.order-notification').appendChild(viewCartBtn);
+                
                 modal.style.display = 'none';
             }
         } else {
-            showNotification('Product is out of stock!', 'error');
+            showNotification('Sorry, this product is out of stock!', 'error');
         }
     });
 
