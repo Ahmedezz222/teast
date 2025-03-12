@@ -1,6 +1,6 @@
 .products-hero {
     margin-top: var(--header-height);
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('data/css/img/hero-products.jpg');
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../img/hero-products.jpg');
     background-size: cover;
     background-position: center;
     padding: 100px 20px;
@@ -50,6 +50,9 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     cursor: pointer;
+    will-change: transform;
+    contain: content;
+    content-visibility: auto;
 }
 
 .product-card:hover {
@@ -61,6 +64,8 @@
     height: 200px;
     object-fit: cover;
     border-radius: 8px 8px 0 0;
+    content-visibility: auto;
+    contain: size layout style paint;
 }
 
 .product-details {
@@ -93,6 +98,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
     z-index: 1000;
+    will-change: opacity;
 }
 
 .modal-content {
@@ -220,8 +226,12 @@
     .order-notification {
         width: 90%;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%) translateY(-150%);
         right: auto;
+    }
+
+    .order-notification.show {
+        transform: translateX(-50%) translateY(20px);
     }
 }
 
@@ -237,33 +247,58 @@
 
 .order-notification {
     position: fixed;
-    top: 20px;
+    top: var(--header-height);
     right: 20px;
     padding: 15px 25px;
     border-radius: 8px;
+    background-color: #28a745;
     color: white;
     z-index: 9999;
     display: flex;
     align-items: center;
     gap: 10px;
-    transform: translateX(120%);
+    transform: translateY(-150%);
     transition: transform 0.3s ease-in-out;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.order-notification.success {
-    background: #28a745;
+.order-notification.show {
+    transform: translateY(20px);
 }
 
 .order-notification.error {
-    background: #dc3545;
-}
-
-.order-notification.show {
-    transform: translateX(0);
+    background-color: #dc3545;
 }
 
 .order-notification i {
     font-size: 1.2em;
+}
+
+.order-notification button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background: white;
+    border: none;
+    border-radius: 4px;
+    color: #28a745;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.order-notification button:hover {
+    background: #f8f9fa;
+}
+
+.order-notification.error button {
+    color: #dc3545;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .product-card,
+    .order-notification,
+    .modal {
+        transition: none;
+    }
 }
 
