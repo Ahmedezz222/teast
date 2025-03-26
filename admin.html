@@ -75,6 +75,9 @@
                         <input type="file" name="image" accept="image/*">
                         <button type="submit" class="admin-btn">Add Product</button>
                     </form>
+                    <button id="clearProductsBtn" class="admin-btn danger-btn">
+                        <i class="fas fa-trash-alt"></i> Remove All Products
+                    </button>
                     <div class="products-table">
                         <table>
                             <thead>
@@ -158,6 +161,9 @@
                         <input type="number" name="shippingFee" min="0" step="1" value="0">
                     </div>
                     <button type="submit" class="admin-btn">Save Settings</button>
+                    <button type="button" class="admin-btn danger-btn" id="resetStorageBtn">
+                        <i class="fas fa-trash-alt"></i> Reset All Data
+                    </button>
                 </form>
             </div>
         </section>
