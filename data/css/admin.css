@@ -347,6 +347,69 @@ header {
     }
 }
 
+/* Settings Form Styles */
+.settings-form {
+    max-width: 600px;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.settings-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.settings-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.settings-form input,
+.settings-form select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.settings-form input:focus,
+.settings-form select:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.settings-form input.error {
+    border-color: #dc3545;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.settings-save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.settings-save-btn i {
+    font-size: 1rem;
+}
+
+.settings-save-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 /* Add at the end */
 footer {
     background: #f8f9fa;
