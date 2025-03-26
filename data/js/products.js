@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="product-details">
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-category">${product.category}</p>
-                    <p class="product-price">$${product.price.toFixed(2)}</p>
+                    <p class="product-price">£${product.price.toFixed(2)}</p>
                 </div>
             `;
             productCard.addEventListener('click', () => showProductDetails(product));
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-product-name').textContent = product.name;
         document.getElementById('modal-product-category').textContent = product.category;
         document.getElementById('modal-product-description').textContent = product.description;
-        document.getElementById('modal-product-price').textContent = `$${product.price.toFixed(2)}`;
+        document.getElementById('modal-product-price').textContent = `£${product.price.toFixed(2)}`;
         document.getElementById('modal-product-stock').textContent = 
             `In Stock: ${product.stock > 0 ? product.stock : 'Out of Stock'}`;
         

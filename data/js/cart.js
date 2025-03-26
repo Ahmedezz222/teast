@@ -146,13 +146,13 @@ class CartManager {
                         <div class="mini-cart-item-details">
                             <h4>${item.name}</h4>
                             <p>Quantity: ${item.quantity}</p>
-                            <p>$${(item.price * item.quantity).toFixed(2)}</p>
+                            <p>£${(item.price * item.quantity).toFixed(2)}</p>
                         </div>
                     </div>
                 `).join('')}
             </div>
             <div class="mini-cart-footer">
-                <p>Total: $${this.getTotal().toFixed(2)}</p>
+                <p>Total: £${this.getTotal().toFixed(2)}</p>
                 <a href="bikeyardcart.html" class="view-cart-btn">View Cart</a>
             </div>
         `;
@@ -207,7 +207,7 @@ class CartManager {
                         <img src="${item.image}" alt="${item.name}" class="product-image">
                         <div class="item-details">
                             <h4>${item.name}</h4>
-                            <p class="item-price">$${Number(item.price).toFixed(2)}</p>
+                            <p class="item-price">£${Number(item.price).toFixed(2)}</p>
                         </div>
                     </div>
                 </td>
@@ -241,8 +241,8 @@ class CartManager {
                         <span class="remove-text">Remove</span>
                     </button>
                 </td>
-                <td data-label="Price" class="price-cell">$${Number(item.price).toFixed(2)}</td>
-                <td data-label="Total" class="total-cell">$${(Number(item.price) * item.quantity).toFixed(2)}</td>
+                <td data-label="Price" class="price-cell">£${Number(item.price).toFixed(2)}</td>
+                <td data-label="Total" class="total-cell">£${(Number(item.price) * item.quantity).toFixed(2)}</td>
             </tr>
         `).join('');
 
