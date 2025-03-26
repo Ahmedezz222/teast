@@ -410,6 +410,22 @@ header {
     cursor: not-allowed;
 }
 
+.danger-btn {
+    background: #dc3545;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.danger-btn:hover {
+    background: #bd2130;
+}
+
+.danger-btn i {
+    font-size: 1rem;
+}
+
 /* Add at the end */
 footer {
     background: #f8f9fa;
@@ -422,4 +438,14 @@ footer {
 footer p {
     margin: 0;
     color: #6c757d;
+}
+
+/* Add styling for the clear products button */
+.product-management .danger-btn {
+    margin: 0 0 1rem 0;
+    background: #dc3545;
+}
+
+.product-management .danger-btn:hover {
+    background: #bd2130;
 }
