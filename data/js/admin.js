@@ -61,7 +61,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Product Management
     function initializeProducts() {
         const productForm = document.getElementById('productForm');
+        const clearProductsBtn = document.getElementById('clearProductsBtn');
         if (!productForm) return;
+
+        // Add clear products functionality
+        clearProductsBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to remove ALL products? This action cannot be undone.')) {
+                try {
+                    store.products = [];
+                    localStorage.setItem('products', JSON.stringify([]));
+                    renderProducts();
+                    showNotification('All products have been removed successfully', 'success');
+                } catch (error) {
+                    console.error('Error clearing products:', error);
+                    showNotification('Failed to remove products', 'error');
+                }
+            }
+        });
 
         // Initialize global store
         const store = {
@@ -564,7 +580,45 @@ document.addEventListener('DOMContentLoaded', function() {
     // Settings Management with save functionality
     function initializeSettings() {
         const settingsForm = document.getElementById('settingsForm');
-        if (!settingsForm) return;
+        const resetBtn = document.getElementById('resetStorageBtn');
+        if (!settingsForm || !resetBtn) return;
+
+        // Add reset localStorage functionality
+        resetBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+                try {
+                    // Clear all stored data
+                    localStorage.clear();
+                    
+                    // Reset settings to defaults
+                    const defaultSettings = {
+                        siteName: 'Bike Yard',
+                        contactEmail: 'contact@bikeyard.com',
+                        currency: 'EGP',
+                        shippingFee: 0
+                    };
+                    
+                    localStorage.setItem('adminSettings', JSON.stringify(defaultSettings));
+                    
+                    // Reset form to defaults
+                    Object.keys(defaultSettings).forEach(key => {
+                        const input = settingsForm.querySelector(`[name="${key}"]`);
+                        if (input) input.value = defaultSettings[key];
+                    });
+                    
+                    // Show success message
+                    showNotification('All data has been reset successfully', 'success');
+                    
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } catch (error) {
+                    console.error('Error resetting data:', error);
+                    showNotification('Failed to reset data', 'error');
+                }
+            }
+        });
 
         // Load existing settings
         const settings = JSON.parse(localStorage.getItem('adminSettings')) || {
